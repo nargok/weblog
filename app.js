@@ -9,6 +9,7 @@ var flash = require("connect-flash");
 var bodyparser = require("body-parser");
 var app = express();
 
+app.disable("x-powerd-by"); // header情報のx-pawored-byを秘匿する
 app.set("view engine", "ejs");
 
 app.use("/public", express.static(__dirname + "/public"));
@@ -27,6 +28,7 @@ app.use("/", require("./routes/index.js"));
 app.use("/post", require("./routes/post.js"));
 app.use("/search", require("./routes/search.js"));
 app.use("/account", require("./routes/account.js"));
+app.use("/api/post", require("./api/post.js"));
 
 app.use(systemlogger());
 
