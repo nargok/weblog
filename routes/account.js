@@ -1,5 +1,6 @@
 var router = require("express").Router();
 var CONNECTION_URL = require("../config/mongodb.config.js").CONNECTION_URL;
+var { authenticate, authorize } = require("../lib/security/accountcontrol.js");
 var MongoClient = require("mongodb").MongoClient;
 
 var validate = function (body) {
@@ -35,15 +36,30 @@ var createRegistData = function (body) {
   return data;
 };
 
-router.get("/", (req, res) => {
+router.get("/", authorize("owner"), (req, res) => {
   res.render("./account/index.ejs");
 });
 
-router.get("/post/regist", (req, res) => {
+router.get("/login", (req, res) => {
+  res.render("./account/login.ejs", { message: req.flash("message") });
+});
+
+router.post("/login", authenticate());
+
+router.post("/logout", authorize("owner"), (req, res) => {
+  req.logout();
+  res.redirect("/account/login");
+});
+
+router.get("/post/regist", authorize("owner"), (req, res) => {
   res.render("./account/post/regist-form.ejs");
 });
 
-router.post("/post/regist", (req, res) => {
+router.get("/post/regist", authorize("owner"), (req, res) => {
+  res.render("./account/post/regist-form.ejs");
+});
+
+router.post("/post/regist", authorize("owner"), (req, res) => {
   var body = req.body;
   var errors = validate(body);
   var original = createRegistData(body);
